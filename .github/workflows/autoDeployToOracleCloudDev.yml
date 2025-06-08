@@ -53,8 +53,24 @@ jobs:
             pwd
             ls -la
             
-            echo "🔄 Actualizando código desde repositorio..."
-            git pull origin master
+            echo "🔄 Actualizando código desde repositorio (FORZANDO cambios del repo)..."
+            
+            # Limpiar cualquier cambio local que pueda causar conflictos
+            echo "🧹 Limpiando cambios locales..."
+            git reset --hard HEAD
+            git clean -fd
+            
+            # Obtener los últimos cambios del repositorio
+            echo "📥 Descargando cambios del repositorio..."
+            git fetch origin master
+            
+            # Forzar que se use la versión del repositorio (descartar cambios locales)
+            echo "🔀 Aplicando cambios del repositorio (descartando cambios locales)..."
+            git reset --hard origin/master
+            
+            echo "✅ Código actualizado exitosamente desde el repositorio"
+            echo "📊 Estado actual del repositorio:"
+            git log --oneline -5
             
             echo "📦 Instalando/actualizando dependencias..."
             npm ci
@@ -175,4 +191,5 @@ jobs:
           echo "🛠️ Proceso PM2: siasis-dev"
           echo "🔗 Puerto interno: 5000"
           echo "⚠️ NOTA: Instancia compartida - CERT no debe verse afectado"
+          echo "⚠️ NOTA: Cambios locales del servidor son DESCARTADOS por el deploy"
           echo "==================================="

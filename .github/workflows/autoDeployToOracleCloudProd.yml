@@ -43,6 +43,7 @@ jobs:
           echo "📍 Servidor: ${{ secrets.SS01_ORACLE_CLOUD_SERVER_IP }}"
           echo "👤 Usuario: ${{ secrets.SS01_ORACLE_CLOUD_USERNAME }}"
           echo "📂 Ruta del proyecto: ${{ secrets.SS01_ORACLE_CLOUD_UBUNTU_PROYECT_PATH }}"
+          echo "🔥 CRÍTICO: Deploy en servidor de PRODUCCIÓN - Usuarios activos"
 
           ssh -o StrictHostKeyChecking=no ${{ secrets.SS01_ORACLE_CLOUD_USERNAME }}@${{ secrets.SS01_ORACLE_CLOUD_SERVER_IP }} << 'EOF'
             echo "🔍 Accediendo al directorio del proyecto PRODUCCIÓN..."
@@ -52,10 +53,26 @@ jobs:
             pwd
             ls -la
             
-            echo "🔄 Actualizando código desde repositorio..."
-            git pull origin master
+            echo "🔄 Actualizando código desde repositorio (FORZANDO cambios del repo)..."
             
-            echo "📦 Instalando/actualizando dependencias..."
+            # Limpiar cualquier cambio local que pueda causar conflictos
+            echo "🧹 Limpiando cambios locales..."
+            git reset --hard HEAD
+            git clean -fd
+            
+            # Obtener los últimos cambios del repositorio
+            echo "📥 Descargando cambios del repositorio..."
+            git fetch origin master
+            
+            # Forzar que se use la versión del repositorio (descartar cambios locales)
+            echo "🔀 Aplicando cambios del repositorio (descartando cambios locales)..."
+            git reset --hard origin/master
+            
+            echo "✅ Código actualizado exitosamente desde el repositorio"
+            echo "📊 Estado actual del repositorio:"
+            git log --oneline -5
+            
+            echo "📦 Instalando/actualizando dependencias de PRODUCCIÓN..."
             npm install --production
             
             echo "🏗️ Compilando proyecto TypeScript..."
@@ -106,7 +123,7 @@ jobs:
               sudo ss -tlnp | grep :443
               
               echo "🔍 Verificando proceso Node.js:"
-              ps aux | grep node
+              ps aux | grep node | grep -v grep
             '
             
             echo "ℹ️ Deploy PRODUCCIÓN completado pero verificación falló - revisar logs arriba"
@@ -127,4 +144,7 @@ jobs:
           echo "📂 Ruta: ${{ secrets.SS01_ORACLE_CLOUD_UBUNTU_PROYECT_PATH }}"
           echo "🌐 URL: https://${{ secrets.SS01_ORACLE_CLOUD_DOMAIN }}"
           echo "🚀 Proceso PM2: siasis-https"
+          echo "🔗 Puerto: 443 (HTTPS directo)"
+          echo "⚠️ NOTA: Cambios locales del servidor son DESCARTADOS por el deploy"
+          echo "🔥 NOTA: Servidor de PRODUCCIÓN - Impacto directo en usuarios"
           echo "===================================="
