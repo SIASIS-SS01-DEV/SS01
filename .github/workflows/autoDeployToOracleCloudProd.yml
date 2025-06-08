@@ -8,15 +8,15 @@ jobs:
   deploy:
     runs-on: ubuntu-latest
     # Solo ejecutar si el entorno es PRODUCCIÓN
-    if: ${{ secrets.ENTORNO == 'P' }}
+    if: ${{ vars.ENTORNO == 'P' }}
 
     steps:
       - name: Validate Environment
         run: |
           echo "🔍 Validando entorno de deployment..."
-          if [ "${{ secrets.ENTORNO }}" != "P" ]; then
+          if [ "${{ vars.ENTORNO }}" != "P" ]; then
             echo "❌ Este workflow solo debe ejecutarse en ambiente PRODUCCIÓN (P)"
-            echo "🏷️ Entorno detectado: ${{ secrets.ENTORNO }}"
+            echo "🏷️ Entorno detectado: ${{ vars.ENTORNO }}"
             exit 1
           fi
           echo "✅ Entorno PRODUCCIÓN validado correctamente"

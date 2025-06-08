@@ -8,15 +8,15 @@ jobs:
   deploy:
     runs-on: ubuntu-latest
     # Solo ejecutar si el entorno es DESARROLLO
-    if: ${{ secrets.ENTORNO == 'D' }}
+    if: ${{ vars.ENTORNO == 'D' }}
 
     steps:
       - name: Validate Environment
         run: |
           echo "🔍 Validando entorno de deployment..."
-          if [ "${{ secrets.ENTORNO }}" != "D" ]; then
+          if [ "${{ vars.ENTORNO }}" != "D" ]; then
             echo "❌ Este workflow solo debe ejecutarse en ambiente DESARROLLO (D)"
-            echo "🏷️ Entorno detectado: ${{ secrets.ENTORNO }}"
+            echo "🏷️ Entorno detectado: ${{ vars.ENTORNO }}"
             exit 1
           fi
           echo "✅ Entorno DESARROLLO validado correctamente"

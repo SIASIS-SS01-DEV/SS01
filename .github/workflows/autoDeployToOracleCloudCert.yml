@@ -8,15 +8,15 @@ jobs:
   deploy:
     runs-on: ubuntu-latest
     # Solo ejecutar si el entorno es CERTIFICACIÓN
-    if: ${{ secrets.ENTORNO == 'C' }}
+    if: ${{ vars.ENTORNO == 'C' }}
 
     steps:
       - name: Validate Environment
         run: |
           echo "🔍 Validando entorno de deployment..."
-          if [ "${{ secrets.ENTORNO }}" != "C" ]; then
+          if [ "${{ vars.ENTORNO }}" != "C" ]; then
             echo "❌ Este workflow solo debe ejecutarse en ambiente CERTIFICACIÓN (C)"
-            echo "🏷️ Entorno detectado: ${{ secrets.ENTORNO }}"
+            echo "🏷️ Entorno detectado: ${{ vars.ENTORNO }}"
             exit 1
           fi
           echo "✅ Entorno CERTIFICACIÓN validado correctamente"
