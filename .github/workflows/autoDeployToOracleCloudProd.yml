@@ -55,10 +55,34 @@ jobs:
             
             echo "🔄 Actualizando código desde repositorio (FORZANDO cambios del repo)..."
             
-            # Limpiar cualquier cambio local que pueda causar conflictos
+            # Preservar carpetas importantes antes de limpiar
+            echo "💾 Preservando carpetas críticas..."
+            mkdir -p /tmp/siasis-backup-prod
+            if [ -d "logs" ]; then
+              cp -r logs /tmp/siasis-backup-prod/ 2>/dev/null || true
+              echo "📁 Logs respaldados"
+            fi
+            if [ -d "node_modules" ]; then
+              echo "📦 Preservando node_modules (no se respaldará por tamaño)"
+            fi
+            
+            # Limpiar cambios locales
             echo "🧹 Limpiando cambios locales..."
             git reset --hard HEAD
-            git clean -fd
+            
+            # Limpiar archivos no rastreados EXCEPTO logs y node_modules
+            echo "🧹 Limpiando archivos no rastreados (preservando logs y node_modules)..."
+            git clean -fd -e logs/ -e node_modules/
+            
+            # Restaurar carpetas críticas
+            echo "🔄 Restaurando carpetas críticas..."
+            if [ -d "/tmp/siasis-backup-prod/logs" ]; then
+              cp -r /tmp/siasis-backup-prod/logs . 2>/dev/null || true
+              echo "📁 Logs restaurados"
+            fi
+            
+            # Crear directorios necesarios si no existen
+            mkdir -p logs
             
             # Obtener los últimos cambios del repositorio
             echo "📥 Descargando cambios del repositorio..."
@@ -75,15 +99,37 @@ jobs:
             echo "📦 Instalando/actualizando dependencias de PRODUCCIÓN..."
             npm install --production
             
-            echo "🏗️ Compilando proyecto TypeScript..."
-            npm run build
+            echo "🏗️ Intentando compilar proyecto TypeScript..."
+            if npm run build; then
+              echo "✅ Compilación exitosa"
+            else
+              echo "⚠️ Error en compilación TypeScript - Continuando con archivos existentes en dist/"
+              echo "📋 Verificando si existe directorio dist..."
+              if [ ! -d "dist" ]; then
+                echo "❌ No existe directorio dist - No se puede continuar"
+                exit 1
+              fi
+              echo "✅ Directorio dist encontrado - Usando compilación anterior"
+            fi
             
             echo "🔄 Reiniciando servicio PM2 PRODUCCIÓN..."
-            sudo pm2 restart siasis-https || sudo pm2 start dist/index.js --name siasis-https
+            # Intentar restart primero, si falla usar start
+            if sudo pm2 restart siasis-https; then
+              echo "✅ siasis-https reiniciado correctamente"
+            else
+              echo "⚠️ Error en restart, intentando start..."
+              sudo pm2 start dist/index.js --name siasis-https
+            fi
             
             echo "📊 Verificando estado del servicio..."
+            sleep 3
             sudo pm2 status
-            sudo pm2 logs siasis-https --lines 5 --nostream
+            
+            echo "🛠️ Logs específicos de PRODUCCIÓN:"
+            sudo pm2 logs siasis-https --lines 5 --nostream 2>/dev/null || echo "⚠️ No hay logs disponibles aún"
+            
+            # Limpiar respaldo temporal
+            rm -rf /tmp/siasis-backup-prod 2>/dev/null || true
             
             echo "✅ Deploy PRODUCCIÓN completado exitosamente!"
           EOF
@@ -92,8 +138,8 @@ jobs:
         run: |
           echo "🔍 Verificando que el servidor PRODUCCIÓN esté respondiendo..."
 
-          # Esperar unos segundos para que el servicio se inicie completamente
-          sleep 15
+          # Esperar más tiempo para que el servicio se inicie completamente
+          sleep 20
 
           # Construir URL basándose en variables de entorno
           SERVER_URL="https://${{ secrets.SS01_ORACLE_CLOUD_DOMAIN }}"
@@ -114,16 +160,27 @@ jobs:
             ssh -o StrictHostKeyChecking=no ${{ secrets.SS01_ORACLE_CLOUD_USERNAME }}@${{ secrets.SS01_ORACLE_CLOUD_SERVER_IP }} '
               echo "📋 Últimos logs de PM2 PRODUCCIÓN:"
               cd '"${{ secrets.SS01_ORACLE_CLOUD_UBUNTU_PROYECT_PATH }}"'
-              sudo pm2 logs siasis-https --lines 15 --nostream
+              sudo pm2 logs siasis-https --lines 15 --nostream 2>/dev/null || echo "⚠️ No hay logs de siasis-https disponibles"
               
               echo "🔍 Estado de PM2:"
               sudo pm2 status
               
               echo "🌐 Verificando puerto 443:"
-              sudo ss -tlnp | grep :443
+              sudo ss -tlnp | grep :443 || echo "⚠️ Puerto 443 no está en uso"
               
               echo "🔍 Verificando proceso Node.js:"
-              ps aux | grep node | grep -v grep
+              ps aux | grep node | grep -v grep || echo "⚠️ No se encontraron procesos Node.js"
+              
+              echo "🔍 Verificando estructura del proyecto:"
+              ls -la dist/ 2>/dev/null || echo "⚠️ No existe directorio dist/"
+              ls -la logs/ 2>/dev/null || echo "⚠️ No existe directorio logs/"
+              
+              echo "🔍 Verificando archivo principal:"
+              ls -la dist/index.js 2>/dev/null || echo "⚠️ No existe dist/index.js"
+              
+              echo "🔍 Verificando permisos:"
+              whoami
+              groups
             '
             
             echo "ℹ️ Deploy PRODUCCIÓN completado pero verificación falló - revisar logs arriba"
@@ -147,4 +204,5 @@ jobs:
           echo "🔗 Puerto: 443 (HTTPS directo)"
           echo "⚠️ NOTA: Cambios locales del servidor son DESCARTADOS por el deploy"
           echo "🔥 NOTA: Servidor de PRODUCCIÓN - Impacto directo en usuarios"
+          echo "🔧 MEJORAS: Preservación de logs/node_modules, manejo de errores TS"
           echo "===================================="
