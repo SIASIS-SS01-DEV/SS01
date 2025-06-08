@@ -137,7 +137,7 @@ class SocketServer {
         if (ENTORNO === "L") {
           // Respuesta JSON para LOCAL (más informativa para desarrollo)
           res.json({
-            message: `${emoji} Servidor de Sockets del Sistema de Control de Asistencia SIASIS - I.E. 20935 Asunción 8 2025`,
+            message: `${emoji} Servidor de Sockets del Sistema de Control de Asistencia SIASIS - I.E. 20935 Asunción 8 | 2025`,
             environment: envName,
             port: Number(this.port),
             timestamp: new Date().toISOString(),
