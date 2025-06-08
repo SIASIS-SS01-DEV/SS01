@@ -1,7 +1,7 @@
 import { Socket } from "socket.io";
-import { SocketHandler, SocketEmitter } from "../../../utils/SocketUnitario";
-import { NombresEventosTomaAsistenciaDePersonalSS01 } from "../NombresEventosAsistenciaDePersonal";
-import { SALUDAME_PAYLOAD } from "../PayloadEventosAsisteciaDePersonal";
+import { SocketEmitter, SocketHandler } from "../../../utils/SocketsUnitario";
+import { NombresEventosTomaAsistenciaDePersonalSS01 } from "../interfaces/NombresEventosAsistenciaDePersonal";
+import { SALUDAME_PAYLOAD } from "../interfaces/PayloadEventosAsisteciaDePersonal";
 
 export class TomaAsistenciaPersonalSS01Events {
   public static socketConnection: Socket;
@@ -17,7 +17,7 @@ export class TomaAsistenciaPersonalSS01Events {
     }
 
     init() {
-      this.socketHandler.init();
+      this.socketHandler.hand();
     }
   };
 
