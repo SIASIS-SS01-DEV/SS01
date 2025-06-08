@@ -57,14 +57,29 @@ jobs:
             git pull origin master
             
             echo "📦 Instalando/actualizando dependencias..."
-            npm install --production
+            npm ci
+            
+            echo "📦 Instalando dependencias de desarrollo para compilación..."
+            npm install --save-dev @types/jsonwebtoken @types/node @types/express @types/cors
             
             echo "🏗️ Compilando proyecto TypeScript..."
             npm run build
             
             echo "🔄 Reiniciando SOLO servicio PM2 CERTIFICACIÓN (sin afectar DEV)..."
-            # Solo reiniciar siasis-cert, NO usar 'pm2 restart all'
-            sudo pm2 restart siasis-cert || sudo pm2 start dist/index.js --name siasis-cert
+            # Parar proceso específico de CERT
+            sudo pm2 stop siasis-cert 2>/dev/null || true
+            
+            # Iniciar con ecosystem para asegurar variables correctas
+            sudo pm2 start ecosystem.config.js
+            
+            # Verificar que se inició correctamente
+            if sudo pm2 list | grep -q "siasis-cert.*online"; then
+              echo "✅ siasis-cert iniciado correctamente"
+            else
+              echo "⚠️ Problemas al iniciar siasis-cert, reintentando..."
+              sudo pm2 delete siasis-cert 2>/dev/null || true
+              sudo pm2 start ecosystem.config.js
+            fi
             
             echo "📊 Verificando estado de AMBOS servicios..."
             sudo pm2 status
