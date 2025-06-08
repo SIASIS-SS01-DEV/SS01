@@ -3,7 +3,7 @@ import { ActoresSistema } from "../../../ActoresSistema";
 import { ModoRegistro } from "../../../ModoRegistroPersonal";
 import { NivelEducativo } from "../../../NivelEducativo";
 import { SuccessResponseAPIBase } from "../../types";
-import { TipoAsistencia } from "@/interfaces/shared/AsistenciaRequests";
+import { TipoAsistencia } from "../../../AsistenciaRequests";
 
 export interface RegistrarAsistenciaIndividualRequestBody {
   DNI: string;
