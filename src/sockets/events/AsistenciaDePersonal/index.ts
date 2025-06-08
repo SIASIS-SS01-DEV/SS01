@@ -22,7 +22,7 @@ const importarEventosSocketTomaAsistenciaPersonal = (
 
   new TomaAsistenciaPersonalSS01Events.SALUDAME_SOCKET_HANDLER(() => {
     new TomaAsistenciaPersonalSS01Events.RESPUESTA_SALUDO_EMITTER({
-      saludo: `Hola ${Nombre_Usuario} con ROL ${Rol}`,
+      saludo: `Hola ${Nombre_Usuario} con ROL de ${Rol}`,
     }).execute();
   }).hand();
 };
