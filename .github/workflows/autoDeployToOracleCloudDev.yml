@@ -43,6 +43,7 @@ jobs:
           echo "📍 Servidor: ${{ secrets.SS01_ORACLE_CLOUD_SERVER_IP }}"
           echo "👤 Usuario: ${{ secrets.SS01_ORACLE_CLOUD_USERNAME }}"
           echo "📂 Ruta del proyecto: ${{ secrets.SS01_ORACLE_CLOUD_UBUNTU_PROYECT_PATH }}"
+          echo "⚠️ PRECAUCIÓN: Instancia compartida con CERTIFICACIÓN - Deploy solo de DEV"
 
           ssh -o StrictHostKeyChecking=no ${{ secrets.SS01_ORACLE_CLOUD_USERNAME }}@${{ secrets.SS01_ORACLE_CLOUD_SERVER_IP }} << 'EOF'
             echo "🔍 Accediendo al directorio del proyecto DESARROLLO..."
@@ -61,12 +62,22 @@ jobs:
             echo "🏗️ Compilando proyecto TypeScript..."
             npm run build
             
-            echo "🔄 Reiniciando servicio PM2 DESARROLLO..."
+            echo "🔄 Reiniciando SOLO servicio PM2 DESARROLLO (sin afectar CERT)..."
+            # Solo reiniciar siasis-dev, NO usar 'pm2 restart all'
             sudo pm2 restart siasis-dev || sudo pm2 start dist/index.js --name siasis-dev
             
-            echo "📊 Verificando estado del servicio..."
+            echo "📊 Verificando estado de AMBOS servicios..."
             sudo pm2 status
+            
+            echo "🛠️ Logs específicos de DESARROLLO:"
             sudo pm2 logs siasis-dev --lines 5 --nostream
+            
+            echo "✅ Verificando que CERTIFICACIÓN sigue funcionando..."
+            if sudo pm2 list | grep -q "siasis-cert.*online"; then
+              echo "✅ CERTIFICACIÓN sigue corriendo correctamente"
+            else
+              echo "⚠️ CERTIFICACIÓN podría estar afectada - verificar manualmente"
+            fi
             
             echo "✅ Deploy DESARROLLO completado exitosamente!"
           EOF
@@ -88,7 +99,17 @@ jobs:
           if [ "$response" = "200" ]; then
             echo "✅ Servidor DESARROLLO responde correctamente (HTTP $response)"
             echo "🌐 Sitio DESARROLLO accesible en: $SERVER_URL"
-            echo "🎉 Deploy DESARROLLO exitoso!"
+            
+            # Verificar también que CERT sigue funcionando
+            CERT_URL="https://${{ secrets.SS01_ORACLE_CLOUD_DOMAIN }}/cert"
+            cert_response=$(curl -s -o /dev/null -w "%{http_code}" "$CERT_URL" --max-time 15 || echo "000")
+            
+            if [ "$cert_response" = "200" ]; then
+              echo "✅ CERTIFICACIÓN también responde correctamente (HTTP $cert_response)"
+              echo "🎉 Deploy DESARROLLO exitoso SIN afectar CERTIFICACIÓN!"
+            else
+              echo "⚠️ CERTIFICACIÓN no responde (HTTP $cert_response) - podría estar afectada"
+            fi
           else
             echo "⚠️ Servidor DESARROLLO no responde como se esperaba (HTTP $response)"
             echo "🔍 Obteniendo logs del servidor DESARROLLO para diagnóstico..."
@@ -99,11 +120,14 @@ jobs:
               cd '"${{ secrets.SS01_ORACLE_CLOUD_UBUNTU_PROYECT_PATH }}"'
               sudo pm2 logs siasis-dev --lines 15 --nostream
               
-              echo "🔍 Estado de PM2:"
+              echo "🔍 Estado completo de PM2 (DEV + CERT):"
               sudo pm2 status
               
               echo "🌐 Verificando puerto 4000 (DEV):"
               sudo ss -tlnp | grep :4000
+              
+              echo "🌐 Verificando puerto 5000 (CERT):"
+              sudo ss -tlnp | grep :5000
               
               echo "🌐 Verificando puerto 443 (Nginx):"
               sudo ss -tlnp | grep :443
@@ -111,8 +135,8 @@ jobs:
               echo "🔍 Estado de Nginx:"
               sudo systemctl status nginx --no-pager
               
-              echo "🔍 Verificando proceso Node.js:"
-              ps aux | grep node
+              echo "🔍 Verificando procesos Node.js:"
+              ps aux | grep node | grep -v grep
             '
             
             echo "ℹ️ Deploy DESARROLLO completado pero verificación falló - revisar logs arriba"
@@ -129,9 +153,11 @@ jobs:
           echo "📝 Commit: ${{ github.sha }}"
           echo "👤 Autor: ${{ github.actor }}"
           echo "⏰ Tiempo: $(date)"
-          echo "📍 Servidor: ${{ secrets.SS01_ORACLE_CLOUD_SERVER_IP }}"
+          echo "📍 Servidor: ${{ secrets.SS01_ORACLE_CLOUD_SERVER_IP }} (Compartido con CERT)"
           echo "📂 Ruta: ${{ secrets.SS01_ORACLE_CLOUD_UBUNTU_PROYECT_PATH }}"
-          echo "🌐 URL: https://${{ secrets.SS01_ORACLE_CLOUD_DOMAIN }}/dev"
+          echo "🌐 URL DEV: https://${{ secrets.SS01_ORACLE_CLOUD_DOMAIN }}/dev"
+          echo "🔗 URL CERT: https://${{ secrets.SS01_ORACLE_CLOUD_DOMAIN }}/cert"
           echo "🛠️ Proceso PM2: siasis-dev"
           echo "🔗 Puerto interno: 4000"
+          echo "⚠️ NOTA: Instancia compartida - CERT no debe verse afectado"
           echo "==================================="
