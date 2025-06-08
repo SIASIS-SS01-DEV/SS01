@@ -108,7 +108,7 @@ class SocketServer {
         const envName = this.getEnvironmentName();
         const emoji = this.getEnvironmentEmoji();
         res.json({
-          message: `${emoji} Servidor de Sockets del Sistema de Control de Asistencia SIASIS - I.E. 20935 Asunción 8 2025`,
+          message: `${emoji} Servidor de Sockets del Sistema de Control de Asistencia SIASIS - I.E. 20935 Asunción 8 ${new Date().getFullYear()}`,
           environment: envName,
           basePath: BASE_PATH,
           port: Number(this.port),
