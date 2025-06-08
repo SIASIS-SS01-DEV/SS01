@@ -123,11 +123,11 @@ jobs:
               echo "🔍 Estado completo de PM2 (DEV + CERT):"
               sudo pm2 status
               
-              echo "🌐 Verificando puerto 4000 (DEV):"
-              sudo ss -tlnp | grep :4000
-              
-              echo "🌐 Verificando puerto 5000 (CERT):"
+              echo "🌐 Verificando puerto 5000 (DEV):"
               sudo ss -tlnp | grep :5000
+              
+              echo "🌐 Verificando puerto 5001 (CERT):"
+              sudo ss -tlnp | grep :5001
               
               echo "🌐 Verificando puerto 443 (Nginx):"
               sudo ss -tlnp | grep :443
@@ -158,6 +158,6 @@ jobs:
           echo "🌐 URL DEV: https://${{ secrets.SS01_ORACLE_CLOUD_DOMAIN }}/dev"
           echo "🔗 URL CERT: https://${{ secrets.SS01_ORACLE_CLOUD_DOMAIN }}/cert"
           echo "🛠️ Proceso PM2: siasis-dev"
-          echo "🔗 Puerto interno: 4000"
+          echo "🔗 Puerto interno: 5000"
           echo "⚠️ NOTA: Instancia compartida - CERT no debe verse afectado"
           echo "==================================="
