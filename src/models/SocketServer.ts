@@ -147,7 +147,7 @@ class SocketServer {
         } else {
           // Respuesta texto para PRODUCCIÓN (mantiene retrocompatibilidad)
           res.send(
-            "🚀 Servidor de Sockets del Sistema de Control de Asistencia SIASIS - I.E. 20935 Asunción 8 2025"
+            `🚀 Servidor de Sockets del Sistema de Control de Asistencia SIASIS - I.E. 20935 Asunción 8 2025 | ${new Date().getFullYear()}`
           );
         }
       });
