@@ -1,9 +1,10 @@
-import { Socket } from "socket.io";
+import { Server, Socket } from "socket.io";
 import { SocketHandler, SocketEmitter } from "../../../utils/SocketsUnitario";
 import { NombresEventosTomaAsistenciaDePersonalSS01 } from "../interfaces/NombresEventosAsistenciaDePersonal";
 import { SALUDAME_PAYLOAD } from "../interfaces/PayloadEventosAsisteciaDePersonal";
 
 export class TomaAsistenciaPersonalSS01Events {
+  public static io: Server
   public static socketConnection: Socket;
 
   static SALUDAME_SOCKET_HANDLER = class {
