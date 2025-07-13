@@ -2,8 +2,8 @@ import { Server, Socket } from "socket.io";
 
 import { SocketUserData } from "../../../interfaces/UserData";
 import { TomaAsistenciaPersonalSS01Events } from "./backend/TomaAsistenciaPersonalSS01Events";
-import { ENTORNO } from "../../../constants/ENTORNO";
 import { Entorno } from "../../../interfaces/shared/Entornos";
+import { ENTORNO } from "../../../constants/ENTORNO";
 
 /**
  * Registra los eventos relacionados con la asistencia
@@ -67,7 +67,7 @@ const importarEventosSocketTomaAsistenciaPersonal = (
         console.log("📤 Emisor:", socket.id);
         console.log("🏠 Sala:", Sala_Toma_Asistencia_de_Personal);
       }
-      
+
       // Obteniendo participantes de salas
       const sala = io.sockets.adapter.rooms.get(
         Sala_Toma_Asistencia_de_Personal
