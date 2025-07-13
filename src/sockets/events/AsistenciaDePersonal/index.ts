@@ -2,7 +2,7 @@ import { Server, Socket } from "socket.io";
 
 import { SocketUserData } from "../../../interfaces/UserData";
 import { TomaAsistenciaPersonalSS01Events } from "./backend/TomaAsistenciaPersonalSS01Events";
-import { ENTORNO } from "../../../../constants/ENTORNO";
+import { ENTORNO } from "../../../constants/ENTORNO";
 import { Entorno } from "../../../interfaces/shared/Entornos";
 
 /**
