@@ -52,7 +52,7 @@ const importarEventosSocketTomaAsistenciaPersonal = (
   new TomaAsistenciaPersonalSS01Events.MARQUE_LA_ASISTENCIA_DE_ESTE_PERSONAL_HANDLER(
     ({
       Mi_Socket_Id,
-      id_o_dni,
+      idUsuario,
       nombres,
       apellidos,
       RegistroEntradaSalida,
@@ -81,7 +81,7 @@ const importarEventosSocketTomaAsistenciaPersonal = (
       new TomaAsistenciaPersonalSS01Events.SE_ACABA_DE_MARCAR_LA_ASISTENCIA_DE_ESTE_PERSONAL_EMITTER(
         {
           Mi_Socket_Id,
-          id_o_dni,
+          idUsuario,
           nombres,
           apellidos,
           modoRegistro,
@@ -98,7 +98,7 @@ const importarEventosSocketTomaAsistenciaPersonal = (
   new TomaAsistenciaPersonalSS01Events.ELIMINE_LA_ASISTENCIA_DE_ESTE_PERSONAL_HANDLER(
     ({
       Mi_Socket_Id,
-      id_o_dni,
+      idUsuario,
       nombres,
       apellidos,
       Sala_Toma_Asistencia_de_Personal,
@@ -120,7 +120,7 @@ const importarEventosSocketTomaAsistenciaPersonal = (
       new TomaAsistenciaPersonalSS01Events.SE_ACABA_DE_ELIMINAR_LA_ASISTENCIA_DE_ESTE_PERSONAL_EMITTER(
         {
           Mi_Socket_Id,
-          id_o_dni,
+          idUsuario,
           nombres,
           apellidos,
           modoRegistro,

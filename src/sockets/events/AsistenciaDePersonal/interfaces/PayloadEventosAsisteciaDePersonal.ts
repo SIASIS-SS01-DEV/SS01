@@ -4,6 +4,8 @@ import { ModoRegistro } from "../../../../interfaces/shared/ModoRegistroPersonal
 import { RolesSistema } from "../../../../interfaces/shared/RolesSistema";
 import { SALAS_TOMA_ASISTENCIA_PERSONAL_IE20935 } from "./SalasTomaAsistenciaDePersonal";
 
+
+
 export interface SALUDAME_PAYLOAD {
   saludo: string;
 }
@@ -33,7 +35,7 @@ export interface EmisorBroadcastDeSala {
 
 export interface SE_ACABA_DE_ELIMINAR_LA_ASISTENCIA_DE_ESTE_PERSONAL_PAYLOAD
   extends EmisorBroadcastDeSala {
-  id_o_dni: string | number;
+  idUsuario: string | number;
   nombres: string;
   apellidos: string;
   rol: RolesSistema;
@@ -43,7 +45,7 @@ export interface SE_ACABA_DE_ELIMINAR_LA_ASISTENCIA_DE_ESTE_PERSONAL_PAYLOAD
 
 export interface SE_ACABA_DE_MARCAR_LA_ASISTENCIA_DE_ESTE_PERSONAL_PAYLOAD
   extends EmisorBroadcastDeSala {
-  id_o_dni: string | number;
+  idUsuario: string | number;
   nombres: string;
   apellidos: string;
   rol: RolesSistema;
